@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// yarn start コマンドにより最初に実行されるのがこのスクリプト
+
 /**
  * Module dependencies.
  */
@@ -88,3 +90,28 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+var io = require('socket.io')(server);
+var os = require('os');
+
+/**
+ * server-status という名前で定義されるイベントを、WebSocket の接続に対して発行する
+ * イベント発行時のデータとして、AJAX の時と同様にロードアベレージが loadavg というプロパティで
+ * 配列を持つオブジェクトが渡されるようにデータを受け渡している。
+ * @param socket 
+ */
+function emitServerStatus(socket) {
+  /**
+   * socket.emit関数は、文字列で定義したイベントを、データと共に発行することができる関数
+   */
+  socket.emit('server-status', { loadavg: os.loadavg() });
+  console.log('server-status event emitted.');
+}
+
+/**
+ * WebSocket の接続が確立したときに、setInterval 関数を利用して、10ミリ秒ごとに emitServerStatus 関数を
+ * 呼び出すように設定
+ */
+io.on('connection', function (socket) {
+  setInterval(emitServerStatus, 10, socket);
+});

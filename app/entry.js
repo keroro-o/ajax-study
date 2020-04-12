@@ -17,8 +17,10 @@ movingButton.click(() => {
 
 const loadavg = $('#loadavg');  // loadavg という id が設定された段落要素を表すjQueryオブジェクトを取得し変数に格納
 
-setInterval(() => {
-  $.get('/server-status', {}, (data) => {
-    loadavg.text(data.loadavg.toString());
-  });
-}, 10);
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:8000');
+
+socket.on('server-status', (data) => {
+  loadavg.text(data.loadavg.toString());
+});
