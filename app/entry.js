@@ -14,3 +14,11 @@ movingButton.click(() => {
   block.animate({ 'marginLeft': '500px' }, 500);
   block.animate({ 'marginLeft': '20px' }, 1000);
 });
+
+const loadavg = $('#loadavg');  // loadavg という id が設定された段落要素を表すjQueryオブジェクトを取得し変数に格納
+
+setInterval(() => {
+  $.get('/server-status', {}, (data) => {
+    loadavg.text(data.loadavg.toString());
+  });
+}, 10);
